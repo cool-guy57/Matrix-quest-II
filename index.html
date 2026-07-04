@@ -239,8 +239,8 @@ const MAP_LAYOUT = [
 ];
 
 const MOVES = {
-    "Strike",        { name: "Strike", type: "Primal", power: 35 },
-    "Nitro Burn",    { name: "Nitro Burn", type: "Plasma", power: 70 },
+    "Strike":        { name: "Strike", type: "Primal", power: 35 },
+    "Nitro Burn":    { name: "Nitro Burn", type: "Plasma", power: 70 },
     "Overclock.exe": { name: "Overclock.exe", type: "Cyber", power: 50 },
     "Matrix Cleave": { name: "Matrix Cleave", type: "Cyber", power: 80 },
     "Bio-Siphon":    { name: "Bio-Siphon", type: "Bio", power: 65, drains: true },
@@ -407,7 +407,6 @@ const GameEngine = {
         this.controls.innerHTML = "";
         this.write(`⚠️ ENCOUNTER WARNING: Rogue daemon firewall [${this.enemyMon.name}] has intercepted your socket line! Initializing combat interface vectors...`);
         
-        // RELIABILITY SAFE GUARD: Defer HUD rendering slightly to let view panel states reset values safely
         setTimeout(() => {
             this.combatEl.style.display = "flex";
             this.loadBattleUI();
