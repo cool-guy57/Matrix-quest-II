@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Matrix Quest II: The Outback Ledger (Official Master Build)</title>
+    <style>
+        body {
+            background-color: #0c0e17;
+            color: #bc00dd;
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            user-select: none;
+        }
+
+        #game-container {
+            width: 580px;
+            box-shadow: 0 0 40px rgba(188, 0, 221, 0.4);
+            border: 6px solid #2b1c3f;
+            background: #020205;
+            border-radius: 4px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #header-display {
+            background: #090a12;
+            border-bottom: 4px solid #2b1c3f;
+            padding: 12px;
+            color: #fff;
+            font-size: 11px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* HARDENED CYBER-DECK TERMINAL PANEL */
+        #visual-window {
+            height: 160px;
+            background: linear-gradient(180deg, #05020a 0%, #120720 100%);
+            border-bottom: 4px solid #2b1c3f;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #visual-window::before {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 10;
+            background-size: 100% 4px, 6px 100%;
+            pointer-events: none;
+        }
+
+        .sprite-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 130px;
+            height: 130px;
+            position: relative;
+        }
+
+        .procedural-avatar {
+            width: 70px;
+            height: 70px;
+            border-radius: 8px;
+            box-shadow: 0 0 25px currentColor;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #fff;
+            font-size: 28px;
+            text-shadow: 0 0 8px #000;
+            animation: floatPulse 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes floatPulse {
+            0% { transform: translateY(0px) scale(1); filter: brightness(1); }
+            100% { transform: translateY(-8px) scale(1.04); filter: brightness(1.2); }
+        }
+
+        .visual-hud {
+            background: rgba(4, 4, 7, 0.85);
+            border: 2px solid #bc00dd;
+            padding: 6px 10px;
+            border-radius: 4px;
+            color: #fff;
+            font-size: 10px;
+            width: 140px;
+            box-sizing: border-box;
+        }
+
+        .hud-name {
+            font-weight: bold;
+            color: #00ffcc;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .bar-container {
+            width: 100%;
+            background: #1b1f35;
+            height: 6px;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 3px;
+        }
+
+        .hp-bar {
+            height: 100%;
+            background: #bc00dd;
+            width: 100%;
+            transition: width 0.4s ease;
+        }
+
+        #vs-tag {
+            font-size: 20px;
+            font-weight: bold;
+            color: #2b1c3f;
+            text-shadow: 0 0 10px rgba(188,0,221,0.3);
+            z-index: 2;
+        }
+
+        #display-window {
+            height: 140px;
+            padding: 14px;
+            box-sizing: border-box;
+            color: #a9b1d6;
+            font-size: 13px;
+            line-height: 1.5;
+            overflow-y: auto;
+            white-space: pre-line;
+            border-bottom: 4px solid #2b1c3f;
+            background: #020205;
+        }
+
+        #ui-controls {
+            background: #040407;
+            padding: 12px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            min-height: 110px;
+        }
+
+        .btn {
+            background: #161224;
+            color: #bc00dd;
+            border: 3px solid #bc00dd;
+            padding: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            text-align: center;
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 1px;
+            box-shadow: 2px 2px 0px #000;
+        }
+
+        .btn:hover {
+            background: #2b1c3f;
+            color: #00ffcc;
+            border-color: #00ffcc;
+            transform: translate(1px, 1px);
+            box-shadow: 1px 1px 0px #000;
+        }
+
+        .btn-disabled {
+            background: #0a0a0f !important;
+            color: #444 !important;
+            border-color: #333 !important;
+            cursor: not-allowed !important;
+            box-shadow: none !important;
+            transform: none !important;
+        }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <div id="header-display">
+        <span id="loc-tag">DECK SECURE: INITIALIZING</span>
+        <span id="shard-tag">FRAGMENTS: 75F</span>
+    </div>
+
+    <!-- GRAPHICAL HUD SIMULATION DECK LAYER -->
+    <div id="visual-window">
+        <!-- Active Program Sub-HUD -->
+        <div id="ally-hud" class="visual-hud" style="visibility: hidden;">
+            <div id="ally-hud-name" class="hud-name">ROOTCLASH</div>
+            <div>INTEGRITY: <span id="ally-hud-hp-txt">140/140</span></div>
+            <div class="bar-container"><div id="ally-hp-bar" class="hp-bar"></div></div>
+        </div>
+        <div id="ally-sprite-box" class="sprite-container" style="visibility: hidden;">
+            <div id="ally-avatar" class="procedural-avatar">⬢</div>
+        </div>
+
+        <div id="vs-tag">OUTBACK LEDGER</div>
+
+        <!-- Hostile Firewall Sub-HUD -->
+        <div id="enemy-sprite-box" class="sprite-container" style="visibility: hidden;">
+            <div id="enemy-avatar" class="procedural-avatar">⬡</div>
+        </div>
+        <div id="enemy-hud" class="visual-hud" style="visibility: hidden;">
+            <div id="enemy-hud-name" class="hud-name">RUSTSCALE</div>
+            <div>INTEGRITY: <span id="enemy-hud-hp-txt">85/85</span></div>
+            <div class="bar-container"><div id="enemy-hp-bar" class="hp-bar"></div></div>
+        </div>
+    </div>
+
+    <div id="display-window">Mounting Matrix Quest II Master Files...</div>
+    <div id="ui-controls"></div>
+</div>
+
+<script>
+const TYPE_CHART = {
+    Plasma: { Cyber: 2, Mecha: 0.5, Bio: 0.5 },
+    Bio:    { Plasma: 2, Mecha: 2, Cyber: 0.5 },
+    Cyber:  { Bio: 2, Plasma: 0.5, Mecha: 0.5 },
+    Mecha:  { Cyber: 2, Plasma: 2, Bio: 0.5 },
+    Primal: {}
+};
+
+const MOVES = {
+    "Strike":        { name: "Strike", type: "Primal", power: 35 },
+    "Nitro Burn":    { name: "Nitro Burn", type: "Plasma", power: 70 },
+    "Overclock.exe": { name: "Overclock.exe", type: "Cyber", power: 50 },
+    "Matrix Cleave": { name: "Matrix Cleave", type: "Cyber", power: 80 },
+    "Bio-Siphon":    { name: "Bio-Siphon", type: "Bio", power: 65, drains: true },
+    "Hydraulic Crush":{ name: "Hydraulic Crush", type: "Mecha", power: 75 },
+    "Prism Beam":    { name: "Prism Beam", type: "Plasma", power: 65 },
+    "Voltage Kick":  { name: "Voltage Kick", type: "Plasma", power: 70 },
+    "Trojan Injection":{ name: "Trojan Injection", type: "Cyber", power: 60, drains: true },
+    "Spore Injection":{ name: "Spore Injection", type: "Bio", power: 40 },
+    "Logic Spike":   { name: "Logic Spike", type: "Cyber", power: 40 },
+    "Acid Bite":     { name: "Acid Bite", type: "Bio", power: 55 },
+    "Data Drain":    { name: "Data Drain", type: "Bio", power: 60, drains: true }
+};
+
+const CORE_INDEX = {
+    // Gen 2 Daemon Allocation Path
+    "Nitrofox":    { name: "NITROFOX.EXE", symbol: "🦊", color: "#ff00ff", types: ["Plasma", "Cyber"], baseHp: 45, baseAtk: 62, baseDef: 35, baseSpd: 98, moves: ["Strike", "Nitro Burn"] },
+    "Codevitru":   { name: "CODEVITRU.SYS", symbol: "🤖", color: "#00ffff", types: ["Cyber", "Mecha"], baseHp: 55, baseAtk: 48, baseDef: 65, baseSpd: 40, moves: ["Strike", "Overclock.exe"] },
+    "Mechasprout": { name: "MECHASPROUT.BAT", symbol: "🌱", color: "#7cfc00", types: ["Bio", "Mecha"], baseHp: 52, baseAtk: 55, baseDef: 50, baseSpd: 55, moves: ["Strike", "Bio-Siphon"] },
+    
+    // Outback Ledger Threats
+    "Rustscale":   { name: "RUSTSCALE.THI", symbol: "🐊", color: "#b87333", types: ["Mecha", "Bio"], baseHp: 70, baseAtk: 60, baseDef: 65, baseSpd: 35, moves: ["Strike", "Hydraulic Crush"] },
+    "Shardhawk":   { name: "SHARDHAWK.LOG", symbol: "🦅", color: "#da70d6", types: ["Plasma", "Cyber"], baseHp: 50, baseAtk: 65, baseDef: 40, baseSpd: 95, moves: ["Strike", "Prism Beam"] },
+    "Overhop":     { name: "OVERHOP.PRT", symbol: "🦘", color: "#ff4500", types: ["Plasma", "Bio"], baseHp: 55, baseAtk: 70, baseDef: 45, baseSpd: 85, moves: ["Strike", "Voltage Kick"] },
+    "Scraptinger": { name: "SCRAPTINGER.VRS", symbol: "🦂", color: "#d2691e", types: ["Cyber", "Mecha"], baseHp: 45, baseAtk: 58, baseDef: 50, baseSpd: 75, moves: ["Strike", "Trojan Injection"] },
+    
+    // Hard-Mapped Quest I Veterans
+    "Rootclash":   { name: "[VET] ROOTCLASH", symbol: "⬢", color: "#39ff14", types: ["Bio"], baseHp: 50, baseAtk: 52, baseDef: 55, baseSpd: 38, moves: ["Strike", "Spore Injection", "Acid Bite", "Data Drain"] },
+    "Voltsnap":    { name: "[VET] VOLTSNAP", symbol: "⚡", color: "#ff007f", types: ["Plasma"], baseHp: 42, baseAtk: 58, baseDef: 38, baseSpd: 95, moves: ["Strike", "Nitro Burn", "Logic Spike", "Voltage Kick"] },
+    "Chiptoad":    { name: "[VET] CHIPTOAD", symbol: "🐸", color: "#228b22", types: ["Bio"], baseHp: 65, baseAtk: 45, baseDef: 60, baseSpd: 30, moves: ["Strike", "Spore Injection", "Data Drain", "Acid Bite"] },
+
+    // Alpha Ledger Sovereign
+    "TITAN-RACK":  { name: "MSR.TITAN-RACK", symbol: "🐋", color: "#ffffff", types: ["Bio", "Mecha"], baseHp: 160, baseAtk: 85, baseDef: 90, baseSpd: 40, moves: ["Strike", "Hydraulic Crush"] }
+};
+
+class Monster {
+    constructor(speciesName, level = 5, isLegacy = false) {
+        const data = CORE_INDEX[speciesName];
+        this.species = speciesName;
+        this.name = data.name;
+        this.types = data.types;
+        this.level = level;
+        this.moves = [...data.moves];
+        this.maxHp = Math.floor((data.baseHp * 2 * level) / 100) + level + 10;
+        this.hp = this.maxHp;
+        this.atk = Math.floor((data.baseAtk * 2 * level) / 100) + 5;
+        this.def = Math.floor((data.baseDef * 2 * level) / 100) + 5;
+        this.spd = Math.floor((data.baseSpd * 2 * level) / 100) + 5;
+    }
+}
+
+const Engine = {
+    display: document.getElementById("display-window"),
+    controls: document.getElementById("ui-controls"),
+    locTag: document.getElementById("loc-tag"),
+    shardTag: document.getElementById("shard-tag"),
+
+    gameState: "STARTER_SELECT",
+    battleSubState: "MAIN",
+    playerParty: [],
+    activeMon: null,
+    enemyMon: null,
+    shards: 75,
+    inventory: { "Link Card": 5, "Nano-Repair": 3 },
+    outpostSecured: false,
+
+    init() {
+        this.drawStarterSelect();
+    },
+
+    updateHeader(locationName) {
+        this.locTag.innerText = `DECK NODE: ${locationName.toUpperCase()}`;
+        this.shardTag.innerText = `FRAGMENTS: ${this.shards}F`;
+    },
+
+    write(text) {
+        this.display.innerText = text;
+        this.display.scrollTop = this.display.scrollHeight;
+    },
+
+    createButton(label, callback, disabled = false) {
+        const btn = document.createElement("div");
+        btn.className = disabled ? "btn btn-disabled" : "btn";
+        btn.innerText = label;
+        if (!disabled) btn.onclick = (e) => { e.currentTarget.blur(); callback.call(this); };
+        this.controls.appendChild(btn);
+    },
+
+    refreshVisualDisplay(mode) {
+        const aHud = document.getElementById("ally-hud");
+        const aSprite = document.getElementById("ally-sprite-box");
+        const eHud = document.getElementById("enemy-hud");
+        const eSprite = document.getElementById("enemy-sprite-box");
+        const vsTag = document.getElementById("vs-tag");
+
+        if (mode === "OFF") {
+            aHud.style.visibility = "hidden"; aSprite.style.visibility = "hidden";
+            eHud.style.visibility = "hidden"; eSprite.style.visibility = "hidden";
+            vsTag.innerText = "THE OUTBACK LEDGER";
+            vsTag.style.color = "#2b1c3f";
+        } 
+        else if (mode === "HUB") {
+            aHud.style.visibility = "visible"; aSprite.style.visibility = "visible";
+            eHud.style.visibility = "hidden"; eSprite.style.visibility = "hidden";
+            vsTag.innerText = "DECK BOUNDARY";
+            vsTag.style.color = "#00ffcc";
+
+            const data = CORE_INDEX[this.activeMon.species];
+            document.getElementById("ally-hud-name").innerText = this.activeMon.name;
+            document.getElementById("ally-hud-hp-txt").innerText = `${this.activeMon.hp}/${this.activeMon.maxHp}`;
+            document.getElementById("ally-hp-bar").style.width = `${(this.activeMon.hp / this.activeMon.maxHp) * 100}%`;
+            document.getElementById("ally-hp-bar").style.backgroundColor = data.color;
+            document.getElementById("ally-avatar").innerText = data.symbol;
+            document.getElementById("ally-avatar").style.color = data.color;
+        } 
+        else if (mode === "BATTLE") {
+            aHud.style.visibility = "visible"; aSprite.style.visibility = "visible";
+            eHud.style.visibility = "visible"; eSprite.style.visibility = "visible";
+            vsTag.innerText = "VS";
+            vsTag.style.color = "#ff0055";
+
+            const aData = CORE_INDEX[this.activeMon.species];
+            document.getElementById("ally-hud-name").innerText = this.activeMon.name;
+            document.getElementById("ally-hud-hp-txt").innerText = `${this.activeMon.hp}/${this.activeMon.maxHp}`;
+            document.getElementById("ally-hp-bar").style.width = `${(this.activeMon.hp / this.activeMon.maxHp) * 100}%`;
+            document.getElementById("ally-hp-bar").style.backgroundColor = aData.color;
+            document.getElementById("ally-avatar").innerText = aData.symbol;
+            document.getElementById("ally-avatar").style.color = aData.color;
+
+            const eData = CORE_INDEX[this.enemyMon.species];
+            document.getElementById("enemy-hud-name").innerText = this.enemyMon.name;
+            document.getElementById("enemy-hud-hp-txt").innerText = `${this.enemyMon.hp}/${this.enemyMon.maxHp}`;
+            document.getElementById("enemy-hp-bar").style.width = `${(this.enemyMon.hp / this.enemyMon.maxHp) * 100}%`;
+            document.getElementById("enemy-hp-bar").style.backgroundColor = eData.color;
+            document.getElementById("enemy-avatar").innerText = eData.symbol;
+            document.getElementById("enemy-avatar").style.color = eData.color;
+        }
+    },
+
+    drawStarterSelect() {
+        this.refreshVisualDisplay("OFF");
+        this.updateHeader("Dump Partition Boot");
+        this.controls.innerHTML = "";
+        this.write("=== MATRIX QUEST II: THE OUTBACK LEDGER ===\nInitialize Gen-2 Deck Core Module architecture setup down below.\n\n[DETECTED]: Save State found! Mounting Quest I Hall-of-Fame Crew ([VET] ROOTCLASH, [VET] VOLTSNAP, [VET] CHIPTOAD) into secondary daemon buffers.");
+        
+        this.createButton("NITROFOX.EXE [Plasma/Cyber]", () => this.claimStarter("Nitrofox"));
+        this.createButton("CODEVITRU.SYS [Cyber/Mecha]", () => this.claimStarter("Codevitru"));
+        this.createButton("MECHASPROUT.BAT [Bio/Mecha]", () => this.claimStarter("Mechasprout"));
+    },
+
+    claimStarter(starterKey) {
+        this.playerParty = [new Monster(starterKey, 5, false)];
+        this.playerParty.push(new Monster("Rootclash", 30, true));
+        this.playerParty.push(new Monster("Voltsnap", 30, true));
+        this.playerParty.push(new Monster("Chiptoad", 25, true));
+        
+        this.activeMon = this.playerParty[0];
+        this.loadOutpostHub();
+    },
+
+    loadOutpostHub() {
+        this.gameState = "OUTPOST";
+        this.updateHeader("Outback Base Camp Alpha");
+        this.refreshVisualDisplay("HUB");
+        this.controls.innerHTML = "";
+        
+        let msg = `=== PORTABLE CYBER-DECK HUB ===\nStatus: ${this.outpostSecured ? "ENCRYPTED - VOLTAGE BALANCED" : "UNSECURED - VOLTAGE FLOATING"}\n\nPrimary Daemons are up and fully cached inside your terminal slots.\nSelect hardware directory routine loop:`;
+        this.write(msg);
+
+        this.createButton("⚡ Flush Caches (Full Heal)", () => {
+            this.playerParty.forEach(m => m.hp = m.maxHp);
+            this.outpostSecured = true;
+            this.loadOutpostHub();
+        });
+        this.createButton("📡 Radar Scan Memory Lines", () => this.triggerEncounter(false));
+        this.createButton("🏔️ Breach Sovereign Peaks", () => this.triggerEncounter(true));
+        this.createButton("📋 Check Active Stack", () => this.openPartyMenu("OUTPOST"));
+    },
+
+    openPartyMenu(returnState) {
+        this.controls.innerHTML = "";
+        this.refreshVisualDisplay("OFF");
+        let msg = "=== CYBER-DECK MEMORY ALLOCATION ===\nSelect a Daemon file path to forward loop into the master active execution slot:\n\n";
+        this.playerParty.forEach((m, idx) => {
+            msg += `[Slot ${idx + 1}] ${m.name} - Lv${m.level} (${m.hp}/${m.maxHp} HP)\n`;
+        });
+        this.write(msg);
+
+        this.playerParty.forEach((m, idx) => {
+            this.createButton(`${m.name} (Swap)`, () => {
+                if(m.hp <= 0) {
+                    alert("Cannot activate an exhausted, broken socket trace!");
+                    return;
+                }
+                this.activeMon = m;
+                if (returnState === "OUTPOST") this.loadOutpostHub();
+                else this.loadBattleUI();
+            });
+        });
+        this.createButton("<< BACK", () => {
+            if (returnState === "OUTPOST") this.loadOutpostHub();
+            else this.loadBattleUI();
+        });
+    },
+
+    triggerEncounter(isBoss) {
+        this.gameState = "BATTLE";
+        this.battleSubState = "MAIN";
+        this.refreshVisualDisplay("OFF");
+        
+        if (isBoss) {
+            this.enemyMon = new Monster("TITAN-RACK", 35);
+            this.write(`🚨 INTERCEPT: Sovereign Mainframe entity detected! [${this.enemyMon.name}] is overriding your packet lanes!`);
+        } else {
+            const pool = ["Rustscale", "Shardhawk", "Overhop", "Scraptinger"];
+            const choice = pool[Math.floor(Math.random() * pool.length)];
+            const wildLvl = Math.floor(Math.random() * 5) + 6;
+            this.enemyMon = new Monster(choice, wildLvl);
+            this.write(`[RADAR ALERT]: Hostile rogue process [${this.enemyMon.name}] (Lv${this.enemyMon.level}) intercepted your terminal node!`);
+        }
+        setTimeout(() => this.loadBattleUI(), 1500);
+    },
+
+    loadBattleUI() {
+        this.updateHeader("ICE-Breaching Socket Trace");
+        this.refreshVisualDisplay("BATTLE");
+        this.controls.innerHTML = "";
+
+        let statusText = `Commit hardware operation deck command from stack interface panel:`;
+        this.write(statusText);
+
+        if (this.battleSubState === "MAIN") {
+            this.createButton("⚔️ Run Subroutine", () => { this.battleSubState = "FIGHT"; this.loadBattleUI(); });
+            this.createButton(`🎒 Utility Cards`, () => { this.battleSubState = "BAG"; this.loadBattleUI(); });
+            this.createButton("🔀 Swap Core Socket", () => { this.openPartyMenu("BATTLE"); });
+            this.createButton("🏃 Disconnect Socket", () => {
+                this.write("Dropping packet link traces... Re-routed safe lines back to base camp.");
+                setTimeout(() => this.loadOutpostHub(), 1200);
+            });
+        } else if (this.battleSubState === "FIGHT") {
+            this.activeMon.moves.forEach(mKey => {
+                this.createButton(`${mKey}`, () => this.runTurnPipeline({type: "MOVE", name: mKey}));
+            });
+            this.createButton("<< BACK", () => { this.battleSubState = "MAIN"; this.loadBattleUI(); });
+        } else if (this.battleSubState === "BAG") {
+            Object.keys(this.inventory).forEach(item => {
+                let count = this.inventory[item];
+                this.createButton(`${item} (${count})`, () => {
+                    if (item === "Link Card") this.runTurnPipeline({type: "CAPTURE", name: item});
+                    else this.runTurnPipeline({type: "ITEM", name: item});
+                }, count <= 0);
+            });
+            this.createButton("<< BACK", () => { this.battleSubState = "MAIN"; this.loadBattleUI(); });
+        }
+    },
+
+    runTurnPipeline(playerAction) {
+        this.controls.innerHTML = "";
+        let log = "";
+
+        const enemyMoveKey = this.enemyMon.moves[Math.floor(Math.random() * this.enemyMon.moves.length)];
+        const enemyMove = MOVES[enemyMoveKey];
+
+        let speedOrder = [];
+        if (playerAction.type !== "MOVE" || this.activeMon.spd >= this.enemyMon.spd) {
+            speedOrder = [{isPlayer: true, act: playerAction}, {isPlayer: false, act: {type: "MOVE", name: enemyMoveKey}}];
+        } else {
+            speedOrder = [{isPlayer: false, act: {type: "MOVE", name: enemyMoveKey}}, {isPlayer: true, act: playerAction}];
+        }
+
+        let battleOver = false;
+
+        for (let turn of speedOrder) {
+            if (battleOver) break;
+
+            if (turn.isPlayer) {
+                if (this.activeMon.hp <= 0) continue;
+                if (turn.act.type === "ITEM") {
+                    this.inventory[turn.act.name]--;
+                    if (turn.act.name === "Nano-Repair") {
+                        this.activeMon.hp = Math.min(this.activeMon.maxHp, this.activeMon.hp + 50);
+                        log += `👉 Executed Nano-Repair payload. Patched +50 Integrity parameters into ${this.activeMon.name}.\n`;
+                        this.refreshVisualDisplay("BATTLE");
+                    }
+                } 
+                else if (turn.act.type === "CAPTURE") {
+                    log += `👉 Fired deep-exploit Link Card handshake card... `;
+                    if (this.enemyMon.species === "TITAN-RACK") {
+                        log += `BREACH EXCEPTION: Alpha Sovereign firewall security layer too thick!\n`;
+                    } else {
+                        let catchFormula = ((this.enemyMon.maxHp - this.enemyMon.hp) * this.enemyMon.syncRate) / this.enemyMon.maxHp;
+                        if (Math.random() * 100 < catchFormula) {
+                            log += `SUCCESS! Injected code root access and parsed ${this.enemyMon.name} to active deck storage!\n`;
+                            this.playerParty.push(this.enemyMon);
+                            battleOver = true;
+                            this.write(log);
+                            setTimeout(() => this.loadOutpostHub(), 3000);
+                            return;
+                        } else {
+                            log += `FAILED. Connection handshake collision packet drop.\n`;
+                        }
+                    }
+                }
+                else if (turn.act.type === "MOVE") {
+                    let move = MOVES[turn.act.name];
+                    let dmg = this.calculateDamage(this.activeMon, this.enemyMon, move);
+                    this.enemyMon.hp = Math.max(0, this.enemyMon.hp - dmg);
+                    log += `💥 ${this.activeMon.name} ran script [${move.name}]! Handled ${dmg} damage variables.\n`;
+                    this.refreshVisualDisplay("BATTLE");
+                    
+                    // FIXED SIPHON LAYER: True textbook math loop tracking health return siphons
+                    if (move.drains) {
+                        let dynamicHeal = Math.floor(dmg * 0.5);
+                        this.activeMon.hp = Math.min(this.activeMon.maxHp, this.activeMon.hp + dynamicHeal);
+                        log += `💚 [SIPHON EFFECT]: Patched +${dynamicHeal} structural health units cleanly back to chassis.\n`;
+                        this.refreshVisualDisplay("BATTLE");
+                    }
+                    if (this.enemyMon.hp <= 0) {
+                        log += `🏆 Hostile process ${this.enemyMon.name} crashed offline! Salvaged +25 Shard fragments.\n`;
+                        this.shards += 25;
+                        battleOver = true;
+                        this.write(log);
+                        if (this.enemyMon.species === "TITAN-RACK") {
+                            setTimeout(() => {
+                                this.refreshVisualDisplay("OFF");
+                                this.write("=== MATRIX SOVEREIGN SECURED ===\nThe master Alpha Sovereign node has been successfully overwritten. The Outback Ledger partition layers belong completely to your network! Quest Complete!");
+                            }, 3000);
+                        } else {
+                            setTimeout(() => this.loadOutpostHub(), 3000);
+                        }
+                        return;
+                    }
+                }
+            } else {
+                if (this.enemyMon.hp <= 0) continue;
+                let move = MOVES[turn.act.name];
+                let dmg = this.calculateDamage(this.enemyMon, this.activeMon, move);
+                this.activeMon.hp = Math.max(0, this.activeMon.hp - dmg);
+                log += `⚠️ Hostile ${this.enemyMon.name} executed [${move.name}]! Delivered ${dmg} damage payload.\n`;
+                this.refreshVisualDisplay("BATTLE");
+                
+                if (this.activeMon.hp <= 0) {
+                    log += `💀 HARDWARE CRASH: ${this.activeMon.name} thread terminated!\n`;
+                    let nextAlive = this.playerParty.find(m => m.hp > 0);
+                    if (nextAlive) {
+                        this.activeMon = nextAlive;
+                        log += `Automatically hot-swapping terminal socket to backup buffer: ${this.activeMon.name}.\n`;
+                        this.refreshVisualDisplay("BATTLE");
+                    } else {
+                        log += `❌ CRITICAL COLLAPSE: Entire active deck array blanked. Emergency re-routing to Base Camp Alpha...`;
+                        battleOver = true;
+                        this.write(log);
+                        this.playerParty.forEach(m => m.hp = m.maxHp);
+                        this.activeMon = this.playerParty[0];
+                        setTimeout(() => this.loadOutpostHub(), 4000);
+                        return;
+                    }
+                }
+            }
+        }
+
+        this.write(log);
+        this.battleSubState = "MAIN";
+        setTimeout(() => this.loadBattleUI(), 3000);
+    },
+
+    calculateDamage(attacker, defender, move) {
+        let mod = 1;
+        defender.types.forEach(t => {
+            if (TYPE_CHART[move.type] && TYPE_CHART[move.type][t] !== undefined) {
+                mod *= TYPE_CHART[move.type][t];
+            }
+        });
+        let base = Math.floor(((2 * attacker.level / 5 + 2) * move.power * (attacker.atk / defender.def)) / 50) + 2;
+        return Math.floor(base * mod);
+    }
+};
+
+document.addEventListener("DOMContentLoaded", () => {
+    setTimeout(() => Engine.init(), 100);
+});
+</script>
+
+</body>
+</html>
