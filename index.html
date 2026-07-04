@@ -37,7 +37,6 @@
             justify-content: space-between;
         }
 
-        /* MASTER SCREEN LAYER PORT */
         #screen-viewport {
             width: 512px;
             height: 256px;
@@ -47,7 +46,6 @@
             overflow: hidden;
         }
 
-        /* BULLETPROOF DOM TILE GRID MAP */
         #map-grid {
             display: grid;
             grid-template-columns: repeat(16, 32px);
@@ -95,7 +93,6 @@
             100% { box-shadow: inset 0 0 15px #00ffcc; }
         }
 
-        /* PLAYER DECK BLOCK */
         #player-node {
             width: 32px;
             height: 32px;
@@ -114,7 +111,6 @@
             z-index: 5;
         }
 
-        /* COMBAT HUDS */
         #combat-interface {
             width: 100%;
             height: 100%;
@@ -136,7 +132,7 @@
             width: 140px;
         }
 
-        .hud-name { font-weight: bold; color: #00ffcc; margin-bottom: 4px; }
+        .hud-name { font-weight: bold; color: #00ffcc; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .bar-container { width: 100%; background: #1b1f35; height: 6px; border-radius: 3px; overflow: hidden; margin-top: 3px; }
         .hp-bar { height: 100%; background: #bc00dd; width: 100%; transition: width 0.3s ease; }
 
@@ -204,11 +200,9 @@
     </div>
 
     <div id="screen-viewport">
-        <!-- MAP FIELD LAYER -->
         <div id="map-grid"></div>
         <div id="player-node" style="display: none;">P</div>
 
-        <!-- COMBAT ENGINE LAYER -->
         <div id="combat-interface">
             <div class="visual-hud">
                 <div id="ally-name" class="hud-name">---</div>
@@ -245,8 +239,8 @@ const MAP_LAYOUT = [
 ];
 
 const MOVES = {
-    "Strike":        { name: "Strike", type: "Primal", power: 35 },
-    "Nitro Burn":    { name: "Nitro Burn", type: "Plasma", power: 70 },
+    "Strike",        { name: "Strike", type: "Primal", power: 35 },
+    "Nitro Burn",    { name: "Nitro Burn", type: "Plasma", power: 70 },
     "Overclock.exe": { name: "Overclock.exe", type: "Cyber", power: 50 },
     "Matrix Cleave": { name: "Matrix Cleave", type: "Cyber", power: 80 },
     "Bio-Siphon":    { name: "Bio-Siphon", type: "Bio", power: 65, drains: true },
@@ -284,7 +278,7 @@ class Monster {
     }
 }
 
-const Engine = {
+const GameEngine = {
     gridContainer: document.getElementById("map-grid"),
     playerEl: document.getElementById("player-node"),
     combatEl: document.getElementById("combat-interface"),
@@ -410,9 +404,14 @@ const Engine = {
         this.enemyMon = new Monster(pool[Math.floor(Math.random() * pool.length)], Math.floor(Math.random() * 4) + 6);
         
         this.gridContainer.style.display = "none"; this.playerEl.style.display = "none";
-        this.combatEl.style.display = "flex";
-        this.write(`⚠️ ENCOUNTER WARNING: Rogue daemon firewall [${this.enemyMon.name}] has intercepted your socket line!`);
-        setTimeout(() => this.loadBattleUI(), 1500);
+        this.controls.innerHTML = "";
+        this.write(`⚠️ ENCOUNTER WARNING: Rogue daemon firewall [${this.enemyMon.name}] has intercepted your socket line! Initializing combat interface vectors...`);
+        
+        // RELIABILITY SAFE GUARD: Defer HUD rendering slightly to let view panel states reset values safely
+        setTimeout(() => {
+            this.combatEl.style.display = "flex";
+            this.loadBattleUI();
+        }, 1200);
     },
 
     syncCombatHuds() {
@@ -528,7 +527,7 @@ const Engine = {
     }
 };
 
-document.addEventListener("DOMContentLoaded", () => { setTimeout(() => Engine.init(), 100); });
+document.addEventListener("DOMContentLoaded", () => { setTimeout(() => GameEngine.init(), 100); });
 </script>
 
 </body>
