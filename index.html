@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>MatrixQuest II: Beyond the Grid (Expanded Build)</title>
+    <title>MatrixQuest II: Beyond the Grid (Hard Reset Build)</title>
     <style>
         body {
             background-color: #07080e;
@@ -98,12 +98,16 @@
 </div>
 
 <div id="controls-legend">
-    <strong>[MATRIX PROTOCOLS II - EXPANDED BUILD]</strong><br>
+    <strong>[MATRIX PROTOCOLS II - HARD RESET BUILD]</strong><br>
     Grid Navigation: <strong>Arrow Keys / WASD</strong> | Action / Select: <strong>Spacebar / Enter</strong><br>
     Compile Save Profile: <strong>Press 'P' Key</strong>
 </div>
 
 <script>
+// Force clear previous game cache keys completely
+localStorage.removeItem("xenomon_save_profile");
+localStorage.removeItem("matrixquest2_save");
+
 const TYPE_CHART = {
     Plasma: { Cyber: 2, Mecha: 0.5, Bio: 0.5, Volt: 2, Aether: 0.5 },
     Bio:    { Plasma: 2, Mecha: 2, Cyber: 0.5, Volt: 0.5, Aether: 1 },
@@ -168,8 +172,8 @@ const MAP_DIRECTORY = {
             [2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2]
         ],
         npcs: [
-            { id: "ghost_node", name: "GHOST NODE", gridX: 2, gridY: 2, color: "#00ffff", lines: ["The Mainframe purged Sector 01. We are deep in the Undergrid now.", "Defeat Kernel Sentinel up North to obtain the Overclock Override key."] },
-            { id: "patcher_mike", name: "PATCHER-MIKE", gridX: 13, gridY: 2, color: "#ff9900", isShop: true, lines: ["Need fresh subroutines? Let's check your fragment bank."] }
+            { id: "ghost_node", name: "GHOST NODE", gridX: 2, gridY: 1, color: "#00ffff", lines: ["The Mainframe purged Sector 01. We are deep in the Undergrid now.", "Defeat Kernel Sentinel up North to obtain the Overclock Override key."] },
+            { id: "patcher_mike", name: "PATCHER-MIKE", gridX: 12, gridY: 1, color: "#ff9900", isShop: true, lines: ["Need fresh subroutines? Let's check your fragment bank."] }
         ],
         northWarp: { mapKey: "SECTOR_05", spawnX: 8, spawnY: 6 }, 
         southWarp: { mapKey: "SECTOR_06", spawnX: 8, spawnY: 1 }
@@ -301,7 +305,6 @@ const Game = {
     },
 
     initStarterSelectionScreen() {
-        localStorage.clear(); // Wipes previous save cache to guarantee new map state loads!
         this.gameState = "STARTER_SELECT";
         this.dialogue.innerText = "=== MATRIXQUEST II: REBOOT INITIATED ===\nSelect your next-generation starter core profile:";
         this.buttonsContainer.innerHTML = "";
@@ -314,6 +317,7 @@ const Game = {
         const btn = document.createElement("div"); btn.className = "btn"; btn.innerText = label;
         btn.onclick = () => {
             this.playerParty = [new Monster(speciesKey, 5)]; this.activePlayerMon = this.playerParty[0];
+            this.currentMapKey = "SECTOR_04";
             this.activeMap = MAP_DIRECTORY[this.currentMapKey];
             
             this.buttonsContainer.innerHTML = ""; 
@@ -383,7 +387,7 @@ const Game = {
     },
 
     handleGridMovement() {
-        if (!this.activeMap) return;
+        if (!this.activeMap) this.activeMap = MAP_DIRECTORY[this.currentMapKey];
         const targetX = this.playerGridPos.x * this.tileSize; const targetY = this.playerGridPos.y * this.tileSize;
         if (this.pixelPos.x < targetX) this.pixelPos.x += 4; if (this.pixelPos.x > targetX) this.pixelPos.x -= 4;
         if (this.pixelPos.y < targetY) this.pixelPos.y += 4; if (this.pixelPos.y > targetY) this.pixelPos.y -= 4;
@@ -525,7 +529,7 @@ const Game = {
     },
 
     drawTilemap() {
-        if (!this.activeMap) return;
+        if (!this.activeMap) this.activeMap = MAP_DIRECTORY[this.currentMapKey];
         const layout = this.activeMap.layout;
         this.ctx.fillStyle = this.activeMap.groundColor; this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
         this.ctx.strokeStyle = "rgba(0, 240, 255, 0.04)";
@@ -783,7 +787,6 @@ const Game = {
             setTimeout(() => { 
                 this.gameState = "GAME_OVER"; 
                 this.dialogue.innerText = "PARADOX RECONCILED PERMANENTLY.\nYou have freed the entire Grid and destroyed A.E.G.I.S. Prime. Victory!"; 
-                localStorage.removeItem("matrixquest2_save"); 
             }, 3000); 
         } 
         else {
