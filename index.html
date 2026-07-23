@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>MatrixQuest II: Beyond the Grid</title>
+    <title>MatrixQuest II: Beyond the Grid (Expanded Build)</title>
     <style>
         body {
             background-color: #07080e;
@@ -98,7 +98,7 @@
 </div>
 
 <div id="controls-legend">
-    <strong>[MATRIX PROTOCOLS II]</strong><br>
+    <strong>[MATRIX PROTOCOLS II - EXPANDED BUILD]</strong><br>
     Grid Navigation: <strong>Arrow Keys / WASD</strong> | Action / Select: <strong>Spacebar / Enter</strong><br>
     Compile Save Profile: <strong>Press 'P' Key</strong>
 </div>
@@ -135,11 +135,16 @@ const CORE_INDEX = {
     "Nullspider": { name: "Nullspider", type: "Aether", baseHp: 52, baseAtk: 50, baseDef: 58, baseSpd: 42, color: "#9933ff", moves: ["Strike", "Data Drain"], syncRate: 160, learnTable: { 7: "Spore Injection", 12: "Aether Beam" } },
     "Glitchfox II":{ name: "Glitchfox II", type: "Cyber", baseHp: 40, baseAtk: 58, baseDef: 42, baseSpd: 92, color: "#00ffff", moves: ["Strike", "Logic Spike"], syncRate: 170, learnTable: { 6: "Laser Flare", 11: "Sync Erase" } },
     
-    // Wild Encounter Pool
+    // Wild Encounter Pool & New Additions
     "Shadowvixen":{ name: "Shadowvixen", type: "Aether", baseHp: 48, baseAtk: 65, baseDef: 40, baseSpd: 85, color: "#ff00ff", moves: ["Strike", "Aether Beam"], syncRate: 150, learnTable: { 8: "Logic Spike" } },
     "Mecharaptor":{ name: "Mecharaptor", type: "Mecha", baseHp: 55, baseAtk: 70, baseDef: 48, baseSpd: 65, color: "#708090", moves: ["Strike", "Iron Chomp"], syncRate: 110, learnTable: { 9: "Laser Flare" } },
     "Bio-Hornet": { name: "Bio-Hornet", type: "Bio", baseHp: 42, baseAtk: 68, baseDef: 35, baseSpd: 95, color: "#39ff14", moves: ["Strike", "Acid Bite"], syncRate: 180, learnTable: { 7: "Spore Injection" } },
     "Volt-Grid":  { name: "Volt-Grid", type: "Volt", baseHp: 60, baseAtk: 45, baseDef: 65, baseSpd: 35, color: "#ffee00", moves: ["Strike", "Static Pulse"], syncRate: 170, learnTable: { 8: "Volt Burst" } },
+    
+    // NEW MONSTERS
+    "Venomtail":  { name: "Venomtail", type: "Bio", baseHp: 46, baseAtk: 64, baseDef: 38, baseSpd: 90, color: "#10B981", moves: ["Strike", "Acid Bite"], syncRate: 175, learnTable: { 8: "Data Drain" } },
+    "Cryocore":   { name: "Cryocore", type: "Plasma", baseHp: 58, baseAtk: 48, baseDef: 66, baseSpd: 40, color: "#38BDF8", moves: ["Strike", "Laser Flare"], syncRate: 165, learnTable: { 9: "Static Pulse" } },
+    "Vortex-X":   { name: "Vortex-X", type: "Aether", baseHp: 50, baseAtk: 72, baseDef: 45, baseSpd: 82, color: "#F43F5E", moves: ["Strike", "Aether Beam"], syncRate: 140, learnTable: { 10: "Sync Erase" } },
 
     // Bosses
     "Kernel Sentinel":{ name: "Kernel Sentinel", type: "Mecha", baseHp: 75, baseAtk: 68, baseDef: 65, baseSpd: 70, color: "#ff3300", moves: ["Iron Chomp", "Volt Burst"], syncRate: 0, learnTable: {} },
@@ -149,60 +154,60 @@ const CORE_INDEX = {
 
 const MAP_DIRECTORY = {
     "SECTOR_04": {
-        name: "Sector 04: The Undergrid", groundColor: "#04060d", grassColor: "#ffcc00", wallColor: "#12172b", spawnPool: ["Volt-Grid", "Bio-Hornet"], levelMin: 3, levelMax: 5,
+        name: "Sector 04: The Deep Undergrid", groundColor: "#030712", grassColor: "#10B981", wallColor: "#1E293B", spawnPool: ["Volt-Grid", "Bio-Hornet", "Venomtail"], levelMin: 3, levelMax: 5,
         layout: [
             [2,2,2,2,2,2,4,4,4,2,2,2,2,2,2,2],
-            [2,1,1,1,0,0,0,0,5,0,0,1,1,1,1,2],
-            [2,1,1,1,0,0,0,0,0,0,0,1,1,1,1,2],
-            [2,1,1,1,0,2,2,2,2,0,0,1,1,1,1,2],
-            [2,0,0,0,0,2,2,2,2,0,0,0,0,0,0,2],
-            [2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2],
-            [2,0,0,0,0,0,0,0,0,0,0,0,2,2,0,2],
-            [2,1,1,0,0,0,2,2,2,0,0,0,2,2,0,2],
+            [2,0,0,0,0,2,1,1,1,1,2,0,0,5,0,2],
+            [2,0,0,0,0,2,1,1,1,1,2,0,0,0,0,2],
+            [2,1,1,0,0,0,0,0,0,0,0,0,0,1,1,2],
+            [2,1,1,0,0,2,2,0,0,2,2,0,0,1,1,2],
+            [2,0,0,0,0,2,2,0,0,2,2,0,0,0,0,2],
+            [2,0,0,1,1,1,0,0,0,0,1,1,1,0,0,2],
+            [2,0,0,1,1,1,0,0,0,0,1,1,1,0,0,2],
             [2,2,2,2,2,0,0,0,3,0,0,0,2,2,2,2],
             [2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2]
         ],
         npcs: [
-            { id: "ghost_node", name: "GHOST NODE", gridX: 6, gridY: 5, color: "#00ffff", lines: ["The Mainframe purged Sector 01. We are deep in the Undergrid now.", "Defeat Kernel Sentinel up North to obtain the Overclock Override key."] },
-            { id: "patcher_mike", name: "PATCHER-MIKE", gridX: 10, gridY: 5, color: "#ff9900", isShop: true, lines: ["Need fresh subroutines? Let's check your fragment bank."] }
+            { id: "ghost_node", name: "GHOST NODE", gridX: 2, gridY: 2, color: "#00ffff", lines: ["The Mainframe purged Sector 01. We are deep in the Undergrid now.", "Defeat Kernel Sentinel up North to obtain the Overclock Override key."] },
+            { id: "patcher_mike", name: "PATCHER-MIKE", gridX: 13, gridY: 2, color: "#ff9900", isShop: true, lines: ["Need fresh subroutines? Let's check your fragment bank."] }
         ],
         northWarp: { mapKey: "SECTOR_05", spawnX: 8, spawnY: 6 }, 
         southWarp: { mapKey: "SECTOR_06", spawnX: 8, spawnY: 1 }
     },
     "SECTOR_05": {
-        name: "Sector 05: Cyber-Waste Junkyard", groundColor: "#12031a", grassColor: "#ff00ff", wallColor: "#090d18", spawnPool: ["Shadowvixen", "Mecharaptor"], levelMin: 6, levelMax: 9,
+        name: "Sector 05: Cyber-Waste Junkyard", groundColor: "#2A080C", grassColor: "#E11D48", wallColor: "#111827", spawnPool: ["Shadowvixen", "Mecharaptor", "Cryocore"], levelMin: 6, levelMax: 9,
         layout: [
             [2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2],
             [2,2,2,2,2,2,2,0,0,0,0,2,2,2,2,2],
-            [2,0,0,0,1,1,1,0,0,0,0,0,0,0,0,2],
-            [2,0,2,0,1,1,1,1,1,1,1,0,2,2,0,2],
-            [2,0,2,0,0,0,0,0,0,0,0,0,2,2,0,2],
-            [2,0,2,2,2,2,0,0,0,2,2,2,2,2,0,2],
-            [2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2],
-            [2,1,1,0,0,0,0,0,0,0,0,0,0,1,1,2],
+            [2,1,1,1,0,0,0,0,0,0,0,0,1,1,1,2],
+            [2,1,1,1,0,2,2,2,2,2,0,0,1,1,1,2],
+            [2,0,0,0,0,2,0,0,0,2,0,0,0,0,0,2],
+            [2,0,2,2,2,2,0,0,0,2,2,2,2,0,0,2],
+            [2,0,1,1,0,0,0,0,0,0,0,1,1,0,0,2],
+            [2,0,1,1,0,0,0,0,0,0,0,1,1,0,0,2],
             [2,2,2,2,2,2,2,4,4,4,2,2,2,2,2,2],
             [2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2]
         ],
         npcs: [
-            { id: "sentinel_boss", name: "KERNEL SENTINEL", gridX: 11, gridY: 2, color: "#ff3300", isBoss: true, lines: ["ANOMALY DETECTED IN CYBER-WASTE.", "Executing purge sequence v2.0..."] }
+            { id: "sentinel_boss", name: "KERNEL SENTINEL", gridX: 7, gridY: 4, color: "#ff3300", isBoss: true, lines: ["ANOMALY DETECTED IN CYBER-WASTE.", "Executing purge sequence v2.0..."] }
         ],
         southWarp: { mapKey: "SECTOR_04", spawnX: 7, spawnY: 2 } 
     },
     "SECTOR_06": {
-        name: "Sector 06: Aegis Spire Nexus", groundColor: "#05131a", grassColor: "#00ffcc", wallColor: "#ffffff", spawnPool: ["Shadowvixen", "Volt-Grid"], levelMin: 10, levelMax: 14,
+        name: "Sector 06: Aegis Spire Nexus", groundColor: "#F8FAFC", grassColor: "#0284C7", wallColor: "#64748B", spawnPool: ["Shadowvixen", "Volt-Grid", "Vortex-X"], levelMin: 10, levelMax: 14,
         layout: [
             [2,2,2,2,2,2,2,4,4,4,2,2,2,2,2,2],
             [2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2],
-            [2,0,1,1,1,1,1,1,1,1,1,1,1,1,0,2],
-            [2,0,1,0,0,0,0,0,0,0,0,0,0,1,0,2],
-            [2,0,1,0,0,2,2,0,2,2,0,0,0,1,0,2],
-            [2,0,1,0,0,0,0,0,0,0,0,0,0,1,0,2],
-            [2,0,1,1,1,1,1,1,1,1,1,1,1,1,0,2],
+            [2,0,2,2,1,1,1,1,1,1,1,1,2,2,0,2],
+            [2,0,2,2,1,1,1,1,1,1,1,1,2,2,0,2],
+            [2,0,0,0,0,0,2,0,2,0,0,0,0,0,0,2],
+            [2,1,1,1,0,0,0,0,0,0,0,1,1,1,0,2],
+            [2,1,1,1,0,0,0,0,0,0,0,1,1,1,0,2],
             [2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2],
             [2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2]
         ],
         npcs: [
-            { id: "weaver_boss", name: "SHADOW WEAVER", gridX: 7, gridY: 4, color: "#aa00ff", isBoss: true, lines: ["YOU HAVE REACHED THE SPIRE.", "PREPARE TO HAVE YOUR CORE DELETED!"]},
+            { id: "weaver_boss", name: "SHADOW WEAVER", gridX: 3, gridY: 4, color: "#aa00ff", isBoss: true, lines: ["YOU HAVE REACHED THE SPIRE.", "PREPARE TO HAVE YOUR CORE DELETED!"]},
             { id: "aegis_prime_boss", name: "A.E.G.I.S. PRIME", gridX: 7, gridY: 1, color: "#ffffff", isBoss: true, lines: ["I AM THE FINAL HARDENED CORE.", "REBOOTING ENTIRE MATRIX GRID..."]}
         ],
         northWarp: { mapKey: "SECTOR_04", spawnX: 8, spawnY: 7 } 
@@ -242,7 +247,7 @@ class Monster {
         this.atk = Math.floor((data.baseAtk * 2 * level) / 100) + 5; this.def = Math.floor((data.baseDef * 2 * level) / 100) + 5;
         this.spd = Math.floor((data.baseSpd * 2 * level) / 100) + 5; this.exp = 0; this.expNeeded = Math.pow(this.level, 3);
         this.isOverclocked = false;
-        this.status = null; // Status condition e.g. "Glitched"
+        this.status = null;
     }
     gainExp(amount) {
         this.exp += amount; let logString = "";
@@ -296,6 +301,7 @@ const Game = {
     },
 
     initStarterSelectionScreen() {
+        localStorage.clear(); // Wipes previous save cache to guarantee new map state loads!
         this.gameState = "STARTER_SELECT";
         this.dialogue.innerText = "=== MATRIXQUEST II: REBOOT INITIATED ===\nSelect your next-generation starter core profile:";
         this.buttonsContainer.innerHTML = "";
@@ -312,7 +318,7 @@ const Game = {
             
             this.buttonsContainer.innerHTML = ""; 
             this.gameState = "OVERWORLD";
-            this.dialogue.innerText = "Mainframe reboot complete. Welcome to the Undergrid.";
+            this.dialogue.innerText = "Mainframe reboot complete. Welcome to the Deep Undergrid.";
             
             SoundFX.play('levelUp'); 
             this.saveProfileToStorage();
@@ -428,7 +434,7 @@ const Game = {
 
     checkNPCInteraction() { 
         if (!this.activeMap) return; 
-        if (this.currentMapKey === "SECTOR_04" && this.playerGridPos.y - 1 === 1 && this.playerGridPos.x === 8) { 
+        if (this.currentMapKey === "SECTOR_04" && this.playerGridPos.y === 1 && this.playerGridPos.x === 13) { 
             this.executeSanctuaryHeal(); return; 
         } 
         for (let npc of this.activeMap.npcs) { 
